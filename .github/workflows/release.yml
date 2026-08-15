@@ -117,7 +117,7 @@ jobs:
   build-macos-x86_64:
     needs: detect
     if: needs.detect.outputs.skip != 'true'
-    runs-on: macos-15-large
+    runs-on: macos-15-intel
     env:
       MACOSX_DEPLOYMENT_TARGET: 11.0
     steps:
@@ -223,7 +223,7 @@ jobs:
             py: python3
             activate: .venv/bin/activate
           - artifact: build-macos-x86_64
-            runner: macos-15-large
+            runner: macos-15-intel
             py: python3
             activate: .venv/bin/activate
           - artifact: build-macos-arm64
@@ -261,7 +261,7 @@ jobs:
         run: |
           docker run --rm -v "$PWD/dist:/dist" -v "$PWD/smoke.py:/smoke.py" \
             python:3.12-alpine sh -c \
-            "pip install --no-cache-dir /dist/*musllinux*x86_64.whl && python /smoke.py"
+            "pip install --no-cache-dir /dist/*cp312*musllinux*x86_64.whl && python /smoke.py"
 
   publish:
     needs: [detect, smoke, smoke-musl]
