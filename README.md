@@ -1,4 +1,4 @@
-# min-go
+# minify-go
 
 Python wheels for [tdewolff/minify](https://github.com/tdewolff/minify) (the Go
 minifier) under our own PyPI namespace, built by GitHub Actions.
@@ -15,7 +15,7 @@ Why this repo exists:
 ## Install
 
 ```bash
-pip install min-go
+pip install minify-go
 ```
 
 The Python module is `minify` (kept identical to upstream's binding):
@@ -45,7 +45,7 @@ Python 3.10 - 3.14.
    queries the latest `vX.Y.Z` tag of `tdewolff/minify`.
 2. If that tag was already built (GitHub Actions cache), the run stops.
 3. Otherwise the upstream tag is checked out, the PyPI project name in
-   `bindings/py/setup.py` is renamed to `min-go`, and cibuildwheel builds all
+   `bindings/py/setup.py` is renamed to `minify-go`, and cibuildwheel builds all
    wheels (the Go extension is compiled with `make -C bindings/py compile`,
    same as upstream).
 4. Each wheel is smoke-tested in a fresh venv (`smoke.py`), the musllinux

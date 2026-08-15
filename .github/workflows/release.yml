@@ -10,7 +10,7 @@ permissions:
 
 env:
   UPSTREAM_REPO: tdewolff/minify
-  PACKAGE_NAME: min-go
+  PACKAGE_NAME: minify-go
   GO_VERSION: 1.26.6
   CIBW_BUILD: cp310-* cp311-* cp312-* cp313-* cp314-*
 
