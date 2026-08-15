@@ -13,9 +13,9 @@ import minify
 def main() -> None:
     minify.config({})
 
-    html = '<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><path d="M0 0"/></svg>'
+    html = '<svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 0"/></svg>'
     out = minify.string("text/html", html)
-    assert "viewBox" in out and "preserveAspectRatio" in out, out
+    assert "viewBox" in out and 'preserveAspectRatio="none"' in out, out
 
     css = "body { background: url(data:image/png;base64,iVBORw0KGgo=); }"
     out = minify.string("text/css", css)
