@@ -245,7 +245,8 @@ jobs:
         run: |
           ${{ matrix.py }} -m venv .venv
           source ${{ matrix.activate }}
-          pip install -q dist/*.whl
+          pyver=$(python -c 'import sys; print("cp%d%d" % sys.version_info[:2])')
+          pip install -q dist/*"$pyver"*.whl
           python smoke.py
 
   smoke-musl:
