@@ -1,0 +1,7 @@
+The wheels published by this repository are built from the
+tdewolff/minify project (https://github.com/tdewolff/minify),
+Copyright (c) Taco de Wolff, licensed under the MIT License.
+
+This repository itself contains no code from upstream beyond the build
+workflow; the distributed wheels embed upstream code under the MIT License.
+Upstream license text: https://github.com/tdewolff/minify/blob/master/LICENSE
