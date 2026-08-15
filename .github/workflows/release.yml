@@ -71,6 +71,7 @@ jobs:
             tar -C /usr/local -xzf /tmp/go.tar.gz
             export PATH="/usr/local/go/bin:$PATH"
             make -C bindings/py compile
+            cp src/minify/minify.so ./minify.so
       - uses: actions/upload-artifact@v7.0.1
         with:
           name: build-linux-x86_64
@@ -107,6 +108,7 @@ jobs:
             tar -C /usr/local -xzf /tmp/go.tar.gz
             export PATH="/usr/local/go/bin:$PATH"
             make -C bindings/py compile
+            cp src/minify/minify.so ./minify.so
       - uses: actions/upload-artifact@v7.0.1
         with:
           name: build-linux-aarch64
@@ -130,7 +132,9 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Compile Go extension
-        run: make -C bindings/py compile
+        run: |
+          make -C bindings/py compile
+          cp src/minify/minify.so ./minify.so
       - name: Build wheels
         uses: pypa/cibuildwheel@v4.2.0
         with:
@@ -159,7 +163,9 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Compile Go extension
-        run: make -C bindings/py compile
+        run: |
+          make -C bindings/py compile
+          cp src/minify/minify.so ./minify.so
       - name: Build wheels
         uses: pypa/cibuildwheel@v4.2.0
         with:
@@ -188,7 +194,9 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
       - name: Compile Go extension
         shell: bash
-        run: make -C bindings/py compile
+        run: |
+          make -C bindings/py compile
+          cp src/minify/minify.so ./minify.so
       - name: Build wheels
         uses: pypa/cibuildwheel@v4.2.0
         with:
