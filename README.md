@@ -33,7 +33,7 @@ js = m.string("application/javascript", "var x = 1;")
 
 | Platform | Arch | Runner |
 |----------|------|--------|
-| Linux (manylinux + musllinux) | x86_64, aarch64 | ubuntu-latest / ubuntu-24.04-arm |
+| Linux (manylinux) | x86_64, aarch64 | ubuntu-latest / ubuntu-24.04-arm |
 | macOS | x86_64, arm64 | macos-15-large / macos-15 |
 | Windows | amd64 | windows-latest |
 
@@ -43,13 +43,16 @@ Python 3.10 - 3.14.
 
 1. A scheduled workflow (daily 02:00 UTC, or manual `workflow_dispatch`)
    queries the latest `vX.Y.Z` tag of `tdewolff/minify`.
+
+   Note: musllinux wheels are not built - Go `c-shared` libraries cannot be
+   dlopen'd on musl (initial-exec TLS relocation error), so Alpine Linux is
+   unsupported by the Go binding itself.
 2. If that tag was already built (GitHub Actions cache), the run stops.
 3. Otherwise the upstream tag is checked out, the PyPI project name in
    `bindings/py/setup.py` is renamed to `minify-go`, and cibuildwheel builds all
    wheels (the Go extension is compiled with `make -C bindings/py compile`,
    same as upstream).
-4. Each wheel is smoke-tested in a fresh venv (`smoke.py`), the musllinux
-   wheel in an Alpine container.
+4. Each wheel is smoke-tested in a fresh venv (`smoke.py`).
 5. Wheels are published to PyPI via trusted publishing (OIDC) — no tokens.
 
 Version numbers mirror the upstream tag (e.g. `2.24.17`).

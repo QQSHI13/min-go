@@ -61,6 +61,7 @@ jobs:
           package-dir: bindings/py
           output-dir: wheelhouse
         env:
+          CIBW_SKIP: '*musllinux*'
           CIBW_BEFORE_ALL: |
             if command -v curl >/dev/null 2>&1; then
               curl -fsSL https://go.dev/dl/go1.26.6.linux-amd64.tar.gz -o /tmp/go.tar.gz
@@ -98,6 +99,7 @@ jobs:
           package-dir: bindings/py
           output-dir: wheelhouse
         env:
+          CIBW_SKIP: '*musllinux*'
           CIBW_BEFORE_ALL: |
             if command -v curl >/dev/null 2>&1; then
               curl -fsSL https://go.dev/dl/go1.26.6.linux-arm64.tar.gz -o /tmp/go.tar.gz
@@ -202,6 +204,8 @@ jobs:
         with:
           package-dir: bindings/py
           output-dir: wheelhouse
+        env:
+          CIBW_ARCHS: AMD64
       - uses: actions/upload-artifact@v7.0.1
         with:
           name: build-windows
@@ -246,26 +250,15 @@ jobs:
           ${{ matrix.py }} -m venv .venv
           source ${{ matrix.activate }}
           pyver=$(python -c 'import sys; print("cp%d%d" % sys.version_info[:2])')
-          pip install -q dist/*"$pyver"*.whl
+          if ls dist/*"$pyver"*manylinux*.whl >/dev/null 2>&1; then
+            pip install -q dist/*"$pyver"*manylinux*.whl
+          else
+            pip install -q dist/*"$pyver"*.whl
+          fi
           python smoke.py
 
-  smoke-musl:
-    needs: build-linux-x86_64
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: actions/download-artifact@v8.0.1
-        with:
-          name: build-linux-x86_64
-          path: dist
-      - name: Smoke test musllinux wheel
-        run: |
-          docker run --rm -v "$PWD/dist:/dist" -v "$PWD/smoke.py:/smoke.py" \
-            python:3.12-alpine sh -c \
-            "pip install --no-cache-dir /dist/*cp312*musllinux*x86_64.whl && python /smoke.py"
-
   publish:
-    needs: [detect, smoke, smoke-musl]
+    needs: [detect, smoke]
     if: needs.detect.outputs.skip != 'true'
     runs-on: ubuntu-latest
     permissions:

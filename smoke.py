@@ -1,4 +1,4 @@
-"""Smoke test for the min-go wheels.
+"""Smoke test for the minify-go wheels.
 
 Installed in a fresh venv by CI after building; asserts the minify behaviors
 DocsForge relies on:
@@ -11,18 +11,18 @@ import minify
 
 
 def main() -> None:
-    m = minify.config({})
+    minify.config({})
 
     html = '<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><path d="M0 0"/></svg>'
-    out = m.string("text/html", html)
+    out = minify.string("text/html", html)
     assert "viewBox" in out and "preserveAspectRatio" in out, out
 
     css = "body { background: url(data:image/png;base64,iVBORw0KGgo=); }"
-    out = m.string("text/css", css)
+    out = minify.string("text/css", css)
     assert "data:image" in out, out
 
     js = "var x = 1; var y = 2;"
-    out = m.string("application/javascript", js)
+    out = minify.string("application/javascript", js)
     assert "var x=1,y=2" in out, out
 
     print("smoke ok:", out)
