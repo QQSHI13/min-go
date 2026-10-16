@@ -1,0 +1,54 @@
+name: Diagnose windows wheel exit
+
+# Temporary diagnostic: A/B the published 2.24.20 wheel (known-good) against the
+# 2.24.21 wheel built by run 38875251052, on the same windows-latest runner.
+# Answers: is the teardown segfault a 2.24.21 regression, or does 2.24.20 crash
+# too (i.e. latent/environmental)?  No publishing.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  exit-code:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: A) published 2.24.20 from PyPI (known-good reference)
+        shell: bash
+        run: |
+          set +e
+          python -m venv .venv
+          source .venv/Scripts/activate
+          pyver=$(python -c 'import sys; print("cp%d%d" % sys.version_info[:2])')
+          echo "python=$pyver"
+          pip install -q "minify-go==2.24.20"
+          python -c "import minify; print('loaded:', minify.__file__)"
+          python smoke.py
+          echo "PYPI-2.24.20-EXIT=$?"
+          deactivate
+
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: build-windows
+          run-id: 38875251052
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: dist
+
+      - name: B) 2.24.21 wheel from the failed run
+        shell: bash
+        run: |
+          set +e
+          ls -la dist/
+          python -m venv .venv21
+          source .venv21/Scripts/activate
+          pyver=$(python -c 'import sys; print("cp%d%d" % sys.version_info[:2])')
+          echo "python=$pyver"
+          pip install -q dist/*"$pyver"*win_amd64.whl
+          python -c "import minify; print('loaded:', minify.__file__)"
+          python smoke.py
+          echo "ARTIFACT-2.24.21-EXIT=$?"
+          deactivate
