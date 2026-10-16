@@ -73,7 +73,7 @@ jobs:
             export PATH="/usr/local/go/bin:$PATH"
             make -C bindings/py compile
             cp bindings/py/src/minify/minify.so bindings/py/minify.so
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: build-linux-x86_64
           path: wheelhouse/*.whl
@@ -111,7 +111,7 @@ jobs:
             export PATH="/usr/local/go/bin:$PATH"
             make -C bindings/py compile
             cp bindings/py/src/minify/minify.so bindings/py/minify.so
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: build-linux-aarch64
           path: wheelhouse/*.whl
@@ -142,7 +142,7 @@ jobs:
         with:
           package-dir: bindings/py
           output-dir: wheelhouse
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: build-macos-x86_64
           path: wheelhouse/*.whl
@@ -173,7 +173,7 @@ jobs:
         with:
           package-dir: bindings/py
           output-dir: wheelhouse
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: build-macos-arm64
           path: wheelhouse/*.whl
@@ -206,7 +206,7 @@ jobs:
           output-dir: wheelhouse
         env:
           CIBW_ARCHS: AMD64
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: build-windows
           path: wheelhouse/*.whl
