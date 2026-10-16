@@ -1,34 +1,42 @@
 name: Diagnose windows wheel exit
 
-# Temporary diagnostic: A/B the published 2.24.20 wheel (known-good) against the
-# 2.24.21 wheel built by run 38875251052, on the same windows-latest runner.
-# Answers: is the teardown segfault a 2.24.21 regression, or does 2.24.20 crash
-# too (i.e. latent/environmental)?  No publishing.
+# Temporary diagnostic: measure the Windows teardown crash RATE for the published
+# 2.24.20 wheel vs the 2.24.21 wheel from run 38875251052, on the same runner.
+# One sample can't tell "2.24.21 regressed" from "both are flaky", so each wheel
+# gets N fresh interpreter runs. No publishing.
 on:
   workflow_dispatch:
+    inputs:
+      iterations:
+        description: 'Interpreter runs per wheel'
+        required: false
+        default: '12'
 
 permissions:
   contents: read
   actions: read
 
 jobs:
-  exit-code:
+  crash-rate:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7.0.1
 
-      - name: A) published 2.24.20 from PyPI (known-good reference)
+      - name: A) crash rate - published 2.24.20 (PyPI)
         shell: bash
         run: |
           set +e
           python -m venv .venv
           source .venv/Scripts/activate
-          pyver=$(python -c 'import sys; print("cp%d%d" % sys.version_info[:2])')
-          echo "python=$pyver"
           pip install -q "minify-go==2.24.20"
-          python -c "import minify; print('loaded:', minify.__file__)"
-          python smoke.py
-          echo "PYPI-2.24.20-EXIT=$?"
+          python -c "import minify; print('2.24.20 loaded:', minify.__file__)"
+          n=${{ github.event.inputs.iterations }}
+          imp=0; smk=0
+          for i in $(seq 1 "$n"); do
+            python -c "import minify" >/dev/null 2>&1 || imp=$((imp+1))
+            python smoke.py >/dev/null 2>&1 || smk=$((smk+1))
+          done
+          echo "RESULT 2.24.20: import crashes=$imp/$n  smoke crashes=$smk/$n"
           deactivate
 
       - uses: actions/download-artifact@v8.0.2
@@ -38,17 +46,20 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: dist
 
-      - name: B) 2.24.21 wheel from the failed run
+      - name: B) crash rate - 2.24.21 (failed run artifact)
         shell: bash
         run: |
           set +e
-          ls -la dist/
           python -m venv .venv21
           source .venv21/Scripts/activate
           pyver=$(python -c 'import sys; print("cp%d%d" % sys.version_info[:2])')
-          echo "python=$pyver"
           pip install -q dist/*"$pyver"*win_amd64.whl
-          python -c "import minify; print('loaded:', minify.__file__)"
-          python smoke.py
-          echo "ARTIFACT-2.24.21-EXIT=$?"
+          python -c "import minify; print('2.24.21 loaded:', minify.__file__)"
+          n=${{ github.event.inputs.iterations }}
+          imp=0; smk=0
+          for i in $(seq 1 "$n"); do
+            python -c "import minify" >/dev/null 2>&1 || imp=$((imp+1))
+            python smoke.py >/dev/null 2>&1 || smk=$((smk+1))
+          done
+          echo "RESULT 2.24.21: import crashes=$imp/$n  smoke crashes=$smk/$n"
           deactivate
