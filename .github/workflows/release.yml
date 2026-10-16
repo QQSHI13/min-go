@@ -246,6 +246,16 @@ jobs:
           path: dist
       - name: Smoke test
         shell: bash
+        env:
+          # Windows only: the Go c-shared runtime cannot reliably unload its
+          # shared library at interpreter exit (golang/go#11100), so a wheel can
+          # segfault during teardown *after* minification has already succeeded.
+          # Measured on the same runner: 3/12 bare-import runs crash for both
+          # 2.24.20 and 2.24.21; Linux/macOS are clean (0/12). The crash is
+          # therefore version-independent and pre-existing, so it must not gate
+          # a release — but it is only tolerated when smoke.py printed its
+          # success sentinel, i.e. every assertion already passed.
+          TOLERATE_TEARDOWN_CRASH: ${{ matrix.runner == 'windows-latest' }}
         run: |
           ${{ matrix.py }} -m venv .venv
           source ${{ matrix.activate }}
@@ -255,7 +265,16 @@ jobs:
           else
             pip install -q dist/*"$pyver"*.whl
           fi
-          python smoke.py
+          python smoke.py > smoke.log 2>&1
+          rc=$?
+          cat smoke.log
+          if [ $rc -ne 0 ]; then
+            if [ "$TOLERATE_TEARDOWN_CRASH" = "true" ] && grep -q '^smoke ok:' smoke.log; then
+              echo "::warning title=Known Go teardown crash::wheel exited $rc after a fully successful smoke run — golang/go#11100 (c-shared unload); not treated as a release blocker"
+              exit 0
+            fi
+            exit $rc
+          fi
 
   publish:
     needs: [detect, smoke]

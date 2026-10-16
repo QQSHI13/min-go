@@ -57,6 +57,21 @@ Python 3.10 - 3.14.
 
 Version numbers mirror the upstream tag (e.g. `2.24.17`).
 
+## Known issues
+
+- **Windows: possible segfault while the DLL unloads at interpreter exit.**
+  Go's runtime cannot reliably unload a `c-shared` library
+  ([golang/go#11100](https://github.com/golang/go/issues/11100)), so on Windows a
+  process that has imported `minify` can crash *after* its minification work has
+  completed. Measured on `windows-2025-vs2026`: **3 of 12** bare `import minify`
+  runs exited with a segfault, identically for 2.24.20 and 2.24.21; Linux and
+  macOS were clean (0 of 12). The crash is version-independent and pre-existing,
+  so CI tolerates it only when `smoke.py` has already printed its success
+  sentinel — a crash before the assertions pass still fails the build.
+  Practical impact: output is always correct, but a Windows process may exit
+  non-zero. A subprocess-based binding (running the Go minifier out-of-process)
+  is the durable fix and is not implemented yet.
+
 ## Maintenance
 
 - Bump `GO_VERSION` and the Go tarball URLs in the workflow when upstream
