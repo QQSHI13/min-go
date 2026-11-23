@@ -130,7 +130,7 @@ jobs:
           fetch-depth: 0
       - name: Rename PyPI project
         run: sed -i.bak "s/name=\"tdewolff-minify\"/name=\"$PACKAGE_NAME\"/" bindings/py/setup.py && rm -f bindings/py/setup.py.bak
-      - uses: actions/setup-go@v7.0.0
+      - uses: actions/setup-go@v7.1.0
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Compile Go extension
@@ -161,7 +161,7 @@ jobs:
           fetch-depth: 0
       - name: Rename PyPI project
         run: sed -i.bak "s/name=\"tdewolff-minify\"/name=\"$PACKAGE_NAME\"/" bindings/py/setup.py && rm -f bindings/py/setup.py.bak
-      - uses: actions/setup-go@v7.0.0
+      - uses: actions/setup-go@v7.1.0
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Compile Go extension
@@ -191,7 +191,7 @@ jobs:
       - name: Rename PyPI project
         shell: bash
         run: sed -i.bak "s/name=\"tdewolff-minify\"/name=\"$PACKAGE_NAME\"/" bindings/py/setup.py && rm -f bindings/py/setup.py.bak
-      - uses: actions/setup-go@v7.0.0
+      - uses: actions/setup-go@v7.1.0
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Compile Go extension
